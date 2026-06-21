@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto Report FB - ngochuu</title>
+  <style>
+    /* === CSS chính === */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0a0a0a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: monospace;
+      color: #00ff00;
+    }
+    #autoReportMenu {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 320px;
+      background: #111;
+      border: 2px solid #00ff00;
+      padding: 12px;
+      border-radius: 6px;
+      box-shadow: 0 4px 10px rgba(0,255,0,0.2);
+      z-index: 999999;
+      user-select: none;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      border-bottom: 1px dashed #0f0;
+      padding-bottom: 8px;
+      cursor: move;
+    }
+    .header h3 {
+      margin: 0;
+      color: yellow;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+    #btnMinimize {
+      background: #444;
+      color: #fff;
+      border: 1px solid #0f0;
+      padding: 3px 8px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: bold;
+      border-radius: 3px;
+    }
+    .mode-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .mode-row button {
+      flex: 1;
+      padding: 6px;
+      background: #222;
+      color: #0f0;
+      border: 1px solid #0f0;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 11px;
+      border-radius: 3px;
+    }
+    .mode-row button.active {
+      background: #008000;
+      color: #fff;
+    }
+    .info-bar {
+      color: #0ff;
+      font-size: 10px;
+      text-align: center;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    .grid-settings {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: #1a1a1a;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #333;
+      margin-bottom: 12px;
+    }
+    .grid-settings label {
+      font-size: 11px;
+      font-weight: bold;
+      color: #aaa;
+      display: block;
+    }
+    .grid-settings input {
+      width: 100%;
+      margin-top: 3px;
+      background: #222;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 5px;
+      box-sizing: border-box;
+      font-size: 12px;
+      font-weight: bold;
+      text-align: center;
+      border-radius: 3px;
+    }
+    .grid-settings .full-width {
+      grid-column: span 2;
+    }
+    .action-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+    .action-row button {
+      flex: 1;
+      padding: 8px;
+      font-weight: bold;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 3px;
+      border: 1px solid;
+    }
+    #btnStartTool {
+      background: #008000;
+      color: white;
+      border-color: #00ff00;
+    }
+    #btnStopTool {
+      background: #b30000;
+      color: white;
+      border-color: #ff0000;
+    }
+    #statusText {
+      color: cyan;
+      font-size: 11px;
+      text-align: center;
+      padding-top: 8px;
+      border-top: 1px dashed #0f0;
+      font-weight: bold;
+    }
+    .fb-link-area {
+      background: #1a1a1a;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #008000;
+      margin-bottom: 12px;
+    }
+    .fb-link-area label {
+      font-size: 11px;
+      font-weight: bold;
+      color: #ffaa00;
+    }
+    .fb-link-area input {
+      width: 100%;
+      margin-top: 5px;
+      background: #222;
+      color: #0f0;
+      border: 1px dashed #0f0;
+      padding: 5px;
+      font-size: 11px;
+      border-radius: 3px;
+      box-sizing: border-box;
+    }
+    #btnOpenProfile {
+      width: 100%;
+      background: #ffaa00;
+      color: #000;
+      border: 1px solid #ffaa00;
+      padding: 6px;
+      font-weight: bold;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 3px;
+      margin-top: 5px;
+    }
+    .alarm-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #1a1a1a;
+      padding: 6px;
+      border-radius: 3px;
+      border: 1px solid #333;
+      margin-bottom: 8px;
+      justify-content: center;
+    }
+    .alarm-row input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      accent-color: #0f0;
+      cursor: pointer;
+    }
+    .alarm-row label {
+      color: #0f0;
+      font-weight: bold;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .timer-vip {
+      background: #222;
+      text-align: center;
+      padding: 5px;
+      margin-bottom: 8px;
+      border: 1px solid #00e5ff;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+    .timer-vip span {
+      color: #ffaa00;
+      font-size: 13px;
+    }
+    /* Responsive */
+    @media (max-width: 480px) {
+      #autoReportMenu { width: 280px; right: 10px; top: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="autoReportMenu">
+  <!-- Header -->
+  <div class="header" id="dragHandle">
+    <h3>⚡ ngochuu - Report Pro</h3>
+    <button id="btnMinimize">─ Thu gọn</button>
+  </div>
+
+  <!-- Nội dung chính (có thể thu gọn) -->
+  <div id="menuContent">
+    <!-- Chế độ PC / Mobile -->
+    <div class="mode-row">
+      <button id="btnModePC" class="active">🖥 MÁY TÍNH</button>
+      <button id="btnModeMobile">📱 ĐIỆN THOẠI</button>
+    </div>
+
+    <!-- Timer VIP -->
+    <div class="timer-vip">
+      ⏱ THỜI GIAN CHẠY: <span id="timerVIP">00:00:00</span>
+    </div>
+
+    <!-- Cài đặt -->
+    <div class="grid-settings">
+      <div>
+        <label>Số vòng:</label>
+        <input type="number" id="inpLoops" value="1" min="1">
+      </div>
+      <div>
+        <label>Độ trễ (ms):</label>
+        <input type="number" id="inpSpeed" value="100" min="0">
+      </div>
+      <div class="full-width">
+        <label>Ngủ giữa các vòng (Phút):</label>
+        <input type="number" id="inpDelayMinutes" value="0" min="0" step="0.1" placeholder="VD: 1 hoặc 0.5">
+      </div>
+    </div>
+
+    <!-- Link Facebook -->
+    <div class="fb-link-area">
+      <label>🔗 Dán link Facebook cần báo cáo:</label>
+      <input type="text" id="inpFbLink" placeholder="https://www.facebook.com/profile.php?id=1000...">
+      <button id="btnOpenProfile">📂 MỞ PROFILE</button>
+    </div>
+
+    <!-- Âm thanh báo -->
+    <div class="alarm-row">
+      <input type="checkbox" id="chkAlarm" checked>
+      <label for="chkAlarm">🔔 Bật báo (Ting ting)</label>
+    </div>
+
+    <!-- Nút Start / Stop -->
+    <div class="action-row">
+      <button id="btnStartTool">▶ BẮT ĐẦU</button>
+      <button id="btnStopTool">⏹ DỪNG</button>
+    </div>
+
+    <!-- Trạng thái -->
+    <div id="statusText">Trạng thái: Đang chờ...</div>
+  </div>
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  // === DOM refs ===
+  const menu = document.getElementById('autoReportMenu');
+  const dragHandle = document.getElementById('dragHandle');
+  const btnMinimize = document.getElementById('btnMinimize');
+  const menuContent = document.getElementById('menuContent');
+  const btnModePC = document.getElementById('btnModePC');
+  const btnModeMobile = document.getElementById('btnModeMobile');
+  const inpLoops = document.getElementById('inpLoops');
+  const inpSpeed = document.getElementById('inpSpeed');
+  const inpDelayMinutes = document.getElementById('inpDelayMinutes');
+  const btnStart = document.getElementById('btnStartTool');
+  const btnStop = document.getElementById('btnStopTool');
+  const statusText = document.getElementById('statusText');
+  const timerVIP = document.getElementById('timerVIP');
+  const chkAlarm = document.getElementById('chkAlarm');
+  const inpFbLink = document.getElementById('inpFbLink');
+  const btnOpenProfile = document.getElementById('btnOpenProfile');
+
+  // === Biến điều khiển ===
+  let isRunning = false;
+  let stopRequested = false;
+  let currentLoop = 0;
+  let timerInterval = null;
+  let startTime = null;
+  let alarmAudio = null;
+  let reportTab = null; // tab đang báo cáo
+
+  // === Tạo audio báo (Ting ting) ===
+  function playAlarm() {
+    if (!chkAlarm.checked) return;
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 1200;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.15);
+    } catch (e) { /* bỏ qua */ }
+  }
+
+  // === Timer VIP ===
+  function updateTimer() {
+    if (!startTime) { timerVIP.textContent = '00:00:00'; return; }
+    const diff = Date.now() - startTime;
+    const secs = Math.floor(diff / 1000);
+    const h = String(Math.floor(secs / 3600)).padStart(2, '0');
+    const m = String(Math.floor((secs % 3600) / 60)).padStart(2, '0');
+    const s = String(secs % 60).padStart(2, '0');
+    timerVIP.textContent = h + ':' + m + ':' + s;
+  }
+
+  function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    startTime = Date.now();
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 1000);
+  }
+
+  function stopTimer() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+  }
+
+  // === Chế độ PC / Mobile ===
+  btnModePC.addEventListener('click', function() {
+    this.classList.add('active');
+    btnModeMobile.classList.remove('active');
+  });
+  btnModeMobile.addEventListener('click', function() {
+    this.classList.add('active');
+    btnModePC.classList.remove('active');
+  });
+
+  // === Thu gọn / mở rộng ===
+  let minimized = false;
+  btnMinimize.addEventListener('click', function() {
+    minimized = !minimized;
+    menuContent.style.display = minimized ? 'none' : 'block';
+    this.textContent = minimized ? '✖ Mở rộng' : '─ Thu gọn';
+  });
+
+  // === Kéo thả menu ===
+  let isDragging = false;
+  let offsetX, offsetY;
+  dragHandle.addEventListener('mousedown', function(e) {
+    isDragging = true;
+    const rect = menu.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    menu.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    let left = e.clientX - offsetX;
+    let top = e.clientY - offsetY;
+    left = Math.max(0, Math.min(left, window.innerWidth - menu.offsetWidth));
+    top = Math.max(0, Math.min(top, window.innerHeight - menu.offsetHeight));
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+    menu.style.right = 'auto';
+  });
+  document.addEventListener('mouseup', function() {
+    if (isDragging) {
+      isDragging = false;
+      menu.style.cursor = 'default';
+    }
+  });
+
+  // === Mở Profile từ link ===
+  btnOpenProfile.addEventListener('click', function() {
+    const link = inpFbLink.value.trim();
+    if (!link) {
+      statusText.textContent = '⚠️ Vui lòng nhập link Facebook!';
+      return;
+    }
+    // Mở tab mới
+    window.open(link, '_blank');
+    statusText.textContent = '✅ Đã mở profile: ' + link;
+  });
+
+  // === Lấy xpath theo chế độ ===
+  function getXPathSteps() {
+    const isPC = btnModePC.classList.contains('active');
+    if (isPC) {
+      return [
+        { type: 'click', xpath: '//div[@aria-label="More"]' },
+        { type: 'click', xpath: '//span[text()="Find support or report profile"]' },
+        { type: 'click', xpath: '//span[text()="Report profile"]' },
+        { type: 'click', xpath: '//span[text()="Pretending to be someone"]' },
+        { type: 'click', xpath: '//span[text()="A celebrity or public figure"]' },
+        { type: 'click', xpath: '//span[text()="Fake profile"]' },
+        { type: 'click', xpath: '//span[text()="Submit"]' },
+      ];
+    } else {
+      return [
+        { type: 'click', xpath: '//div[@aria-label="More"]' },
+        { type: 'click', xpath: '//span[text()="Find support or report"]' },
+        { type: 'click', xpath: '//span[text()="Report"]' },
+        { type: 'click', xpath: '//span[text()="Pretending to be someone"]' },
+        { type: 'click', xpath: '//span[text()="A celebrity"]' },
+        { type: 'click', xpath: '//span[text()="Fake"]' },
+        { type: 'click', xpath: '//span[text()="Send"]' },
+      ];
+    }
+  }
+
+  // === Hàm tìm và click theo xpath ===
+  function clickByXpath(xpath, timeoutMs = 4000) {
+    return new Promise((resolve, reject) => {
+      const start = Date.now();
+      const interval = setInterval(() => {
+        const el = document.evaluate(
+          xpath,
+          document,
+          null,
+          XPathResult.FIRST_ORDERED_NODE_TYPE,
+          null
+        ).singleNodeValue;
+        if (el) {
+          clearInterval(interval);
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.click();
+          resolve(true);
+          return;
+        }
+        if (Date.now() - start > timeoutMs) {
+          clearInterval(interval);
+          reject(new Error('Không tìm thấy: ' + xpath));
+        }
+      }, 200);
+    });
+  }
+
+  // === Thực hiện một lần báo cáo (trên tab hiện tại) ===
+  async function doOneReport() {
+    const steps = getXPathSteps();
+    for (let i = 0; i < steps.length; i++) {
+      if (stopRequested) return false;
+      try {
+        await clickByXpath(steps[i].xpath, 4000);
+        await sleep(parseInt(inpSpeed.value) || 100);
+      } catch (e) {
+        statusText.textContent = '⚠️ Lỗi bước ' + (i+1) + ': ' + e.message;
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // === Vòng lặp báo cáo chính ===
+  async function runLoop() {
+    const total = parseInt(inpLoops.value) || 1;
+    const delayMinutes = parseFloat(inpDelayMinutes.value) || 0;
+    const delayMs = delayMinutes * 60000;
+    const link = inpFbLink.value.trim();
+
+    if (!link) {
+      statusText.textContent = '⚠️ Vui lòng nhập link Facebook trước!';
+      isRunning = false;
+      stopTimer();
+      btnStart.disabled = false;
+      btnStop.disabled = true;
+      return;
+    }
+
+    for (let i = 0; i < total; i++) {
+      if (stopRequested) break;
+      currentLoop = i + 1;
+      statusText.textContent = '🔄 Đang báo cáo lần ' + currentLoop + '/' + total + ' ...';
+
+      // Mở tab mới với link profile
+      reportTab = window.open(link, '_blank');
+      if (!reportTab) {
+        statusText.textContent = '❌ Không thể mở tab! Kiểm tra popup blocker.';
+        break;
+      }
+
+      // Chờ tab load
+      await sleep(3000);
+
+      // Chuyển focus sang tab mới và thực thi
+      try {
+        reportTab.focus();
+        // Inject script vào tab mới để thực hiện báo cáo
+        const script = `
+          (function() {
+            // Hàm click xpath
+            function clickByXpath(xpath, timeoutMs) {
+              return new Promise((resolve, reject) => {
+                const start = Date.now();
+                const interval = setInterval(() => {
+                  const el = document.evaluate(
+                    xpath,
+                    document,
+                    null,
+                    XPathResult.FIRST_ORDERED_NODE_TYPE,
+                    null
+                  ).singleNodeValue;
+                  if (el) {
+                    clearInterval(interval);
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    el.click();
+                    resolve(true);
+                    return;
+                  }
+                  if (Date.now() - start > timeoutMs) {
+                    clearInterval(interval);
+                    reject(new Error('Không tìm thấy: ' + xpath));
+                  }
+                }, 200);
+              });
+            }
+
+            function sleep(ms) {
+              return new Promise(r => setTimeout(r, ms));
+            }
+
+            async function doReport() {
+              const steps = ${JSON.stringify(getXPathSteps())};
+              for (let i = 0; i < steps.length; i++) {
+                await clickByXpath(steps[i].xpath, 4000);
+                await sleep(${parseInt(inpSpeed.value) || 100});
+              }
+              return true;
+            }
+
+            doReport().then(success => {
+              // Gửi kết quả về parent
+              window.opener.postMessage({ type: 'reportResult', success: success }, '*');
+            }).catch(err => {
+              window.opener.postMessage({ type: 'reportResult', success: false, error: err.message }, '*');
+            });
+          })();
+        `;
+
+        // Chờ tab sẵn sàng
+        await sleep(500);
+        // Thực thi script trong tab mới
+        const scriptEl = reportTab.document.createElement('script');
+        scriptEl.textContent = script;
+        reportTab.document.head.appendChild(scriptEl);
+
+        // Chờ kết quả từ tab con
+        const result = await new Promise((resolve) => {
+          const handler = function(e) {
+            if (e.data && e.data.type === 'reportResult') {
+              window.removeEventListener('message', handler);
+              resolve(e.data);
+            }
+          };
+          window.addEventListener('message', handler);
+          // Timeout sau 30 giây
+          setTimeout(() => {
+            window.removeEventListener('message', handler);
+            resolve({ success: false, error: 'Timeout' });
+          }, 30000);
+        });
+
+        if (result.success) {
+          playAlarm();
+          statusText.textContent = '✅ Lần ' + currentLoop + ' thành công!';
+        } else {
+          statusText.textContent = '❌ Lần ' + currentLoop + ' thất bại: ' + (result.error || '');
+        }
+
+        // Đóng tab sau khi báo cáo xong
+        try { reportTab.close(); } catch (e) {}
+
+      } catch (e) {
+        statusText.textContent = '❌ Lỗi tab: ' + e.message;
+        try { reportTab.close(); } catch (ex) {}
+      }
+
+      // Nếu còn vòng và chưa dừng -> delay
+      if (i < total - 1 && !stopRequested) {
+        if (delayMs > 0) {
+          statusText.textContent = '⏳ Nghỉ ' + delayMinutes + ' phút...';
+          await sleep(delayMs);
+        } else {
+          await sleep(500);
+        }
+      }
+    }
+
+    // Kết thúc
+    if (!stopRequested) {
+      statusText.textContent = '🎯 Hoàn thành ' + currentLoop + '/' + total + ' báo cáo!';
+      playAlarm();
+    } else {
+      statusText.textContent = '⏹ Đã dừng bởi người dùng.';
+    }
+    isRunning = false;
+    stopTimer();
+    btnStart.disabled = false;
+    btnStop.disabled = true;
+  }
+
+  // === Start ===
+  btnStart.addEventListener('click', function() {
+    if (isRunning) return;
+    stopRequested = false;
+    isRunning = true;
+    currentLoop = 0;
+    btnStart.disabled = true;
+    btnStop.disabled = false;
+    startTimer();
+    statusText.textContent = '🚀 Bắt đầu...';
+    runLoop().catch(err => {
+      statusText.textContent = '❌ Lỗi: ' + err.message;
+      isRunning = false;
+      stopTimer();
+      btnStart.disabled = false;
+      btnStop.disabled = true;
+    });
+  });
+
+  // === Stop ===
+  btnStop.addEventListener('click', function() {
+    if (!isRunning) return;
+    stopRequested = true;
+    statusText.textContent = '⏳ Đang dừng...';
+    btnStop.disabled = true;
+    // Đóng tab nếu đang mở
+    try { if (reportTab && !reportTab.closed) reportTab.close(); } catch (e) {}
+  });
+
+  // === Khởi tạo trạng thái ===
+  btnStop.disabled = true;
+  statusText.textContent = '✅ Sẵn sàng. Nhấn BẮT ĐẦU.';
+
+  console.log('✅ Auto Report FB - ngochuu - Đã sẵn sàng');
+})();
+</script>
+</body>
+</html>
